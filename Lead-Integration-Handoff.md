@@ -5,160 +5,109 @@
 **Purpose:** Owner delivery / Vercel deployment  
 **Underlying operation:** Existing ADV company CRM infrastructure
 
-## 1. Architecture
+## Architecture
 
-The LSP website is a separate customer-facing brand, but it continues to feed the same underlying ADV systems.
-
-Lead submissions are routed independently to the enabled backends so one backend failure does not intentionally block the others.
+Loan Streamline Pro is a separate customer-facing brand that continues to use the existing ADV Salesforce, GoHighLevel, and Supabase infrastructure.
 
 ```text
-LSP form / PURL
-      │
-      ▼
-Next.js API route
-      │
-      ▼
-Backend router
-  ├── Salesforce
-  ├── GoHighLevel (GHL)
-  └── Supabase
+LSP website / personalized PURL
+              |
+              v
+       Next.js API routes
+              |
+              v
+      Backend routing
+       |      |      |
+       v      v      v
+   Salesforce GHL  Supabase
 ```
 
-## 2. Salesforce
+The existing CRM wiring is intentionally preserved for the LSP brand.
 
-Salesforce continues to use the existing ADV Salesforce organization and Connected App.
+## Production Domains
 
-The integration uses OAuth2 `client_credentials` and reads these server-side environment variables:
+LSP uses two public domains, matching the existing two-domain ADV pattern.
 
-```text
-SALESFORCE_INSTANCE_URL
-SALESFORCE_CLIENT_ID
-SALESFORCE_CLIENT_SECRET
-```
+### Main website
 
-Main integration file:
+`https://loanstreamlinepro.com/`
 
-```text
-lib/backends/salesforce.ts
-```
+Used for the public website, calculator, standard inquiry flow, blog/resources, legal pages, and general support traffic.
 
-The site obtains a Salesforce access token server-side and creates/updates lead records using the existing mappings. The Salesforce wiring is intentionally preserved because LSP is another ADV brand, not a separate sales operation.
+### Personalized PURL domain
 
-## 3. GoHighLevel (GHL)
+`https://lspoffer.app/{short_code}`
 
-The site uses the existing GHL infrastructure and LSP location configuration.
+Used only for personalized PURL landing pages. The current short-code format is five alphanumeric characters, for example `https://lspoffer.app/Kx9mQ`.
 
-Relevant environment variables:
+Hostname routing is implemented in `proxy.ts`.
 
-```text
-GHL_API_KEY
-GHL_LOCATION_ID
-```
+Expected behavior:
 
-Optional webhook variables are also supported:
+- `loanstreamlinepro.com` serves the main website.
+- `lspoffer.app/{valid-looking-short-code}` serves the personalized PURL route.
+- Direct PURL-style paths on `loanstreamlinepro.com` redirect to the main LSP homepage.
+- Non-PURL traffic on `lspoffer.app` redirects to the equivalent path on `loanstreamlinepro.com`.
+- Example: `lspoffer.app/privacy` redirects to `loanstreamlinepro.com/privacy`.
+- Vercel preview domains remain unrestricted so the main site and `/[id]` route can both be reviewed during testing.
 
-```text
-GHL_WEBHOOK_URL
-GHL_QUALIFY_WEBHOOK_URL
-```
+Both production domains should be connected to the same final Vercel project so hostname routing can enforce this separation.
 
-### LSP identification tag
+## GHL Identification
 
-Every LSP lead/PURL submission that reaches the applicable GHL path should be identifiable with:
+LSP lead and PURL submissions use the GHL identification tag:
 
-```text
-sms-web-purl-lsp
-```
+`sms-web-purl-lsp`
 
-This replaces the historical website tag `sms-web-purl-aff` for the LSP brand.
+For personalized PURL submissions, the LSP tag is added without intentionally replacing existing ADV/GHL status tags.
 
-For personalized PURL submissions, the LSP tag is added without intentionally replacing existing GHL/ADV status tags such as qualification-state tags.
+Relevant integration files include:
 
-Main files:
+- `lib/backends/ghl-api.ts`
+- `lib/backends/ghl-webhook.ts`
+- `app/api/qualify-lead/route.ts`
+- `lib/backendcolumns.ts`
 
-```text
-lib/backends/ghl-api.ts
-lib/backends/ghl-webhook.ts
-app/api/qualify-lead/route.ts
-lib/backendcolumns.ts
-```
+## Personalized PURL Flow
 
-## 4. Supabase
+The personalized route uses the existing ADV-backed data flow while presenting Loan Streamline Pro publicly. The public entry point is intended to be:
 
-Supabase remains the site's data layer for lead storage and personalized/PURL functionality.
+`https://lspoffer.app/{short_code}`
 
-Environment variables:
+The main LSP domain is not intended to serve personalized PURL URLs publicly.
 
-```text
-SUPABASE_URL
-SUPABASE_ANON_KEY
-SUPABASE_SERVICE_ROLE_KEY
-```
+## Public LSP Identity
 
-`SUPABASE_SERVICE_ROLE_KEY` is server-side only and must never be exposed through a `NEXT_PUBLIC_*` variable or committed to GitHub.
-
-## 5. Environment Setup
-
-The repository intentionally contains placeholders only. Real credentials belong in the owner's hosting environment.
-
-For local development:
-
-1. Copy `.env.example` to `.env.local`.
-2. Add the actual credentials.
-3. Run `npm install` and `npm run dev`.
-
-For Vercel:
-
-1. Import the owner's copy of the GitHub repository.
-2. Add the required variables under **Project Settings → Environment Variables**.
-3. Apply the appropriate values to Preview and Production as needed.
-4. Redeploy after changing environment variables.
-
-## 6. LSP Form Paths
-
-### Standard website inquiry
-
-The main form posts through the site's standard lead submission route and fans out to the enabled CRM backends.
-
-### Personalized PURL inquiry
-
-The personalized route uses the existing ADV-backed data flow while presenting the Loan Streamline Pro brand publicly. Qualification/status behavior should remain intact, with `sms-web-purl-lsp` added in GHL for brand attribution.
-
-## 7. Customer-Facing Identity
-
-Public-facing brand:
-
-**Loan Streamline Pro (LSP)**
-
+- Main domain: **loanstreamlinepro.com**
+- PURL domain: **lspoffer.app**
 - Phone: **(833) 289-0694**
 - Email: **support@loanstreamlinepro.com**
 - Address: **1712 Pioneer Ave Suite 500, Cheyenne, WY 82001**
 
-LSP is presented as a technology service connecting consumers with independent Lending Partners. It is not presented as the direct lender.
+Loan Streamline Pro is presented as a technology service that helps connect consumers with independent Lending Partners. LSP is not presented as the direct lender.
 
-The old lender-licensing page is intentionally not part of the LSP site.
+The former direct-lender licensing page is intentionally excluded from the LSP site.
 
-## 8. Reviews
+## Reviews
 
-The LSP review cards are static website content. They do not depend on a live Trustpilot widget, Trustpilot API, or Trustpilot rating feed.
+The LSP customer-review cards are static website content. They do not depend on a live Trustpilot widget, API, or rating feed.
 
-## 9. Delivery Test
+## Delivery Validation
 
-Before attaching the production domain, run one controlled test through each important lead path.
+This handoff pass includes code, branding, hostname-routing, and Vercel build validation. A live end-to-end CRM test record is **not being created as part of this handoff pass by request**.
 
-Verify:
+Before final DNS cutover, the owner should confirm:
 
-- Standard LSP form submits successfully.
-- Personalized PURL submits successfully.
-- GHL receives the contact.
-- GHL contact contains `sms-web-purl-lsp`.
-- Existing ADV/GHL status tags remain intact where applicable.
-- Salesforce receives the expected lead/update.
-- Supabase receives or updates the expected record.
-- No production secrets are committed to GitHub.
+- The production Vercel build is successful.
+- `loanstreamlinepro.com` loads the main website.
+- `lspoffer.app/{short_code}` loads the personalized route.
+- Legal/support paths entered on `lspoffer.app` redirect to the equivalent main-domain path.
+- PURL-style paths are not publicly served from `loanstreamlinepro.com`.
+- Required deployment configuration is present in the owner's Vercel project.
+- No private credentials are committed to GitHub.
 
-## 10. Important Handoff Note
+A controlled CRM submission can be performed later by the owner after the final deployment configuration is installed, if desired.
 
-The owner should copy/transfer this codebase into the owner's GitHub account or organization and connect that repository to the owner's Vercel project. The temporary testing Vercel project used during development is not intended to be the final production ownership boundary.
+## Ownership Handoff
 
-The final `loanstreamlinepro.com` domain should be attached only after the owner has approved the preview and configured the required production environment variables.
+The current development GitHub/Vercel setup is a temporary testing and delivery environment. The owner should place the approved code in the owner's repository, connect it to the owner's Vercel project, configure the final deployment settings, and then attach both production domains.
