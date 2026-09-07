@@ -261,6 +261,14 @@ body {
   }
 }
 
+/* ── Legacy CTA compatibility ──
+   Older components still use historical red-gradient utility class names.
+   Keep the markup stable for handoff while rendering those conversion
+   surfaces in the LSP royal-blue action system. */
+[class*="from-af-red"][class*="to-[#E63935]"] {
+  background-image: linear-gradient(to right, #2563EB, #1D4ED8) !important;
+}
+
 /* ── Scrollbar Utilities ── */
 .scrollbar-none {
   -ms-overflow-style: none;
