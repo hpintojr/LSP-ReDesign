@@ -73,7 +73,7 @@ export async function sendToGhlApi(lead: LeadData): Promise<BackendResult> {
         source: lead.source,
         locationId: config.locationId,
         customFields,
-        tags: ['sms-web-purl-aff'],
+        tags: ['sms-web-purl-lsp'],
       }),
     });
 
