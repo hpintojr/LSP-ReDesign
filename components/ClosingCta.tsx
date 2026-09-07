@@ -54,11 +54,11 @@ export default function ClosingCta({ onEstimatorClick }: ClosingCtaProps) {
             <div>
               <div className="w-12 h-12 rounded-2xl bg-white text-af-blue flex items-center justify-center mb-4 group-hover:scale-105 transition-transform shadow-md"><Sparkles className="w-6 h-6" /></div>
               <span className="block text-[11px] font-extrabold uppercase tracking-wider text-af-blue-cyan">Online Inquiry</span>
-              <span className="block text-2xl sm:text-3xl font-extrabold tracking-tight text-white mt-1">Check My Options</span>
+              <span className="block text-2xl sm:text-3xl font-extrabold tracking-tight text-white mt-1">Apply Now</span>
               <p className="text-xs text-white/80 mt-2 leading-relaxed">Start with a simple LSP inquiry. Any actual offer, approval, rate, or term comes from a Lending Partner.</p>
             </div>
             <div className="pt-4 mt-6 border-t border-white/10 flex items-center justify-between text-xs font-bold text-white group-hover:text-af-blue-cyan transition-colors">
-              <span>Start Online</span><ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+              <span>Apply Online</span><ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </div>
           </div>
         </div>
