@@ -42,7 +42,7 @@ export default function Navbar({ onEstimatorClick }: NavbarProps) {
   };
 
   return (
-    <header id="site-header" className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-xl border-b border-af-blue-ice shadow-[0_4px_20px_-4px_rgba(29,49,95,0.06)] transition-all duration-200">
+    <header id="site-header" className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-xl border-b border-af-blue-ice shadow-[0_4px_20px_-4px_rgba(15,23,42,0.06)] transition-all duration-200">
       <div className="bg-gradient-to-r from-af-navy-deep via-af-navy to-af-blue text-white py-1.5 px-4 text-xs">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2 font-medium tracking-wide">
@@ -60,7 +60,7 @@ export default function Navbar({ onEstimatorClick }: NavbarProps) {
               <span className="hidden md:inline">Technology Service · Not a Lender</span>
             </div>
             <a href="tel:+18332890694" onClick={() => analytics.navbarCallClick('desktop')} className="hidden lg:flex font-bold text-white hover:text-af-blue-light transition-colors items-center gap-1">
-              <Phone className="w-3 h-3 text-af-red" />
+              <Phone className="w-3 h-3 text-af-blue-light" />
               (833) 289-0694
             </a>
             <button onClick={() => setIsOpen(!isOpen)} className="lg:hidden flex items-center justify-center w-7 h-7 rounded-lg text-white/90 hover:text-white hover:bg-white/10 transition-colors" aria-expanded={isOpen} aria-label="Toggle navigation menu" id="mobile-topbar-menu-btn">
@@ -71,7 +71,7 @@ export default function Navbar({ onEstimatorClick }: NavbarProps) {
       </div>
 
       <div className="w-full h-[3.5px] bg-af-blue-ice/40 relative overflow-hidden" role="progressbar" aria-valuenow={Math.round(scrollProgress)} aria-valuemin={0} aria-valuemax={100} id="header-scroll-progressbar">
-        <div className="h-full bg-gradient-to-r from-af-blue via-[#8F476C] to-af-red transition-all duration-75 ease-out shadow-[0_0_8px_rgba(15,117,188,0.5)]" style={{ width: `${scrollProgress}%` }} />
+        <div className="h-full bg-gradient-to-r from-af-blue via-af-blue-cyan to-[#1D4ED8] transition-all duration-75 ease-out shadow-[0_0_8px_rgba(37,99,235,0.5)]" style={{ width: `${scrollProgress}%` }} />
       </div>
 
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
@@ -92,18 +92,18 @@ export default function Navbar({ onEstimatorClick }: NavbarProps) {
 
             <div className="h-7 w-[1px] bg-af-blue-ice" />
 
-            <a href="tel:+18332890694" onClick={() => analytics.navbarCallClick('desktop')} className="flex items-center gap-2.5 px-4.5 py-2.5 rounded-full bg-af-blue border border-af-blue/80 text-white hover:bg-af-blue/90 transition-all duration-200 group whitespace-nowrap shadow-xs" id="nav-phone-link">
+            <a href="tel:+18332890694" onClick={() => analytics.navbarCallClick('desktop')} className="flex items-center gap-2.5 px-4.5 py-2.5 rounded-full bg-af-blue border border-af-blue/80 text-white hover:bg-[#1D4ED8] transition-all duration-200 group whitespace-nowrap shadow-xs" id="nav-phone-link">
               <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white/20 text-white group-hover:scale-110 transition-transform duration-200"><Phone className="w-4 h-4" /></div>
               <span className="text-base sm:text-[17px] font-extrabold font-mono tracking-tight text-white">(833) 289-0694</span>
             </a>
 
             {onEstimatorClick ? (
-              <button onClick={() => { analytics.navbarApplyClick('desktop'); onEstimatorClick(); }} className="group relative inline-flex items-center gap-2.5 px-7 py-3.5 sm:py-4 rounded-full bg-gradient-to-r from-af-red to-[#E63935] text-white font-bold text-base tracking-wide shadow-[0_8px_20px_-4px_rgba(217,49,46,0.35)] hover:shadow-[0_12px_28px_-4px_rgba(217,49,46,0.45)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] overflow-hidden" id="nav-cta-btn">
+              <button onClick={() => { analytics.navbarApplyClick('desktop'); onEstimatorClick(); }} className="group relative inline-flex items-center gap-2.5 px-7 py-3.5 sm:py-4 rounded-full bg-gradient-to-r from-af-blue to-[#1D4ED8] text-white font-bold text-base tracking-wide shadow-[0_8px_20px_-4px_rgba(37,99,235,0.35)] hover:shadow-[0_12px_28px_-4px_rgba(37,99,235,0.45)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] overflow-hidden" id="nav-cta-btn">
                 <span>Apply Now</span>
                 <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:bg-white/30"><ArrowUpRight className="w-4 h-4 text-white stroke-[2.5]" /></div>
               </button>
             ) : (
-              <Link href="/#estimator-anchor" onClick={() => analytics.navbarApplyClick('desktop')} className="group relative inline-flex items-center gap-2.5 px-7 py-3.5 sm:py-4 rounded-full bg-gradient-to-r from-af-red to-[#E63935] text-white font-bold text-base tracking-wide shadow-[0_8px_20px_-4px_rgba(217,49,46,0.35)] hover:shadow-[0_12px_28px_-4px_rgba(217,49,46,0.45)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] overflow-hidden" id="nav-cta-btn">
+              <Link href="/#estimator-anchor" onClick={() => analytics.navbarApplyClick('desktop')} className="group relative inline-flex items-center gap-2.5 px-7 py-3.5 sm:py-4 rounded-full bg-gradient-to-r from-af-blue to-[#1D4ED8] text-white font-bold text-base tracking-wide shadow-[0_8px_20px_-4px_rgba(37,99,235,0.35)] hover:shadow-[0_12px_28px_-4px_rgba(37,99,235,0.45)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] overflow-hidden" id="nav-cta-btn">
                 <span>Apply Now</span>
                 <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:bg-white/30"><ArrowUpRight className="w-4 h-4 text-white stroke-[2.5]" /></div>
               </Link>
@@ -111,8 +111,8 @@ export default function Navbar({ onEstimatorClick }: NavbarProps) {
           </div>
 
           <div className="flex-shrink-0 flex lg:hidden items-center gap-1.5">
-            <Link href="/#estimator-anchor" onClick={(e) => { analytics.navbarApplyClick('mobile'); handleOptionsClick(e); }} className="glow-btn flex items-center justify-center px-3 py-2.5 rounded-full bg-gradient-to-r from-af-red to-[#E63935] text-white font-bold text-xs tracking-wide whitespace-nowrap shadow-md active:scale-95 transition-all" id="mobile-prequalify-btn">Apply Now</Link>
-            <a href="tel:+18332890694" onClick={() => analytics.navbarCallClick('mobile')} className="flex-shrink-0 flex items-center justify-center w-11 h-11 rounded-full bg-af-red text-white shadow-md active:scale-95 transition-transform" aria-label="Call Loan Streamline Pro" id="mobile-phone-cta"><Phone className="w-5 h-5" /></a>
+            <Link href="/#estimator-anchor" onClick={(e) => { analytics.navbarApplyClick('mobile'); handleOptionsClick(e); }} className="glow-btn flex items-center justify-center px-3 py-2.5 rounded-full bg-gradient-to-r from-af-blue to-[#1D4ED8] text-white font-bold text-xs tracking-wide whitespace-nowrap shadow-md active:scale-95 transition-all" id="mobile-prequalify-btn">Apply Now</Link>
+            <a href="tel:+18332890694" onClick={() => analytics.navbarCallClick('mobile')} className="flex-shrink-0 flex items-center justify-center w-11 h-11 rounded-full bg-af-blue text-white shadow-md active:scale-95 transition-transform" aria-label="Call Loan Streamline Pro" id="mobile-phone-cta"><Phone className="w-5 h-5" /></a>
           </div>
         </div>
       </div>
@@ -133,7 +133,7 @@ export default function Navbar({ onEstimatorClick }: NavbarProps) {
               <div><span className="block text-xs font-bold text-pv-muted uppercase tracking-wider">Speak with LSP</span><span className="block text-xl font-bold font-mono text-pv-primary mt-0.5">(833) 289-0694</span></div>
             </a>
 
-            <Link href="/#estimator-anchor" onClick={(e) => { setIsOpen(false); handleOptionsClick(e); }} className="w-full py-4 rounded-full bg-gradient-to-r from-af-red to-[#E63935] text-white font-bold text-base tracking-wide shadow-lg shadow-af-red/25 hover:shadow-xl transition-all duration-200 text-center flex items-center justify-center gap-2" id="mobile-menu-cta-btn">
+            <Link href="/#estimator-anchor" onClick={(e) => { setIsOpen(false); handleOptionsClick(e); }} className="w-full py-4 rounded-full bg-gradient-to-r from-af-blue to-[#1D4ED8] text-white font-bold text-base tracking-wide shadow-lg shadow-af-blue/25 hover:shadow-xl transition-all duration-200 text-center flex items-center justify-center gap-2" id="mobile-menu-cta-btn">
               <span>Apply Now</span><ArrowUpRight className="w-5 h-5" />
             </Link>
 
