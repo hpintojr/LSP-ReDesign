@@ -1,200 +1,272 @@
-# Lead Capture Integration — Detailed Handoff
+# Loan Streamline Pro — Lead Integration Handoff
 
-**Project:** Advantage First Financial website (new Next.js site)
-**Repository:** hpintojr/advantagefirst
-**Date:** August 26, 2026
-**Prepared for:** Site owner
+**Project:** Loan Streamline Pro (LSP) redesign  
+**Repository:** `hpintojr/LSP-ReDesign`  
+**Purpose:** Website/code handoff to owner for final integration and production deployment  
+**Underlying operation:** Existing ADV company CRM infrastructure
 
-## 1. Purpose and Scope
+## Handoff Scope
 
-The new website replaces the old site's lead-capture setup. Every lead submitted through the site's calculator/form needs to reach three destinations simultaneously: Salesforce (the CRM used by the sales team), GoHighLevel or "GHL" (used for SMS/marketing follow-up), and Supabase (a database used as the site's own record of every submission). This document covers the work done to get all three connected, tested, and verified against the live, production versions of each system — not a staging or sandbox environment.
+This delivery is intended to give the owner a clean, LSP-branded website and the existing integration framework needed to finish production setup.
 
-The site sends leads to all three backends independently, in parallel. If one backend fails (say, Salesforce is briefly unreachable), the other two still receive the lead — the integrations are not dependent on each other succeeding.
+What has been completed in this handoff:
 
-## 2. Salesforce Integration
+- Customer-facing Advantage First branding was converted to Loan Streamline Pro.
+- The main calculator/original 3-step experience was restored.
+- LSP legal/disclosure language, contact information, logo, favicon, reviews, and CTAs were updated.
+- The direct-lender licensing page was removed from the LSP brand.
+- Existing ADV Salesforce / GHL / Supabase integration code was preserved rather than replaced.
+- LSP lead attribution was added in GHL with `sms-web-purl-lsp`.
+- The two-domain website/PURL routing model was updated for LSP.
+- The current branch compiles successfully in Vercel Preview.
 
-### 2.1 Background and why it needed rework
+What is **not** being represented as complete or production-verified:
 
-The previous site's Apex-based integration authenticated to Salesforce using a Connected App and the OAuth2 "client credentials" flow — the server proves its identity with a client ID and client secret, and Salesforce hands back a temporary access token in return. The new site initially had a placeholder for a single, manually-entered access token, which is a poor long-term setup: Salesforce access tokens expire, and someone would have needed to generate and paste in a new one periodically by hand.
+- Live end-to-end CRM delivery has not been tested as part of this handoff pass.
+- Production credentials, permissions, webhook URLs, Salesforce mappings, Supabase RPCs, GHL custom fields, workflows, and automations still need to be validated by the owner.
+- The owner is expected to take over and finish the integration work across all platforms before production launch.
 
-To match how the old site worked and avoid that maintenance burden, the integration was rebuilt to use the same Connected App and the same client-credentials flow, with the site fetching its own token automatically.
+## Production Domains
 
-### 2.2 How it works now
+LSP intentionally uses two public domains, following the existing ADV two-domain pattern.
 
-- The site holds three pieces of Salesforce configuration as environment variables: the instance URL (`https://customer-ruby-1712.my.salesforce.com`), a Client ID, and a Client Secret. These correspond to the existing Connected App already configured on the Salesforce org — nothing new was created on the Salesforce side.
-- When a lead needs to be sent, the code (`lib/backends/salesforce.ts`) first requests an access token from Salesforce's OAuth endpoint (`/services/oauth2/token`) using those credentials.
-- The returned token is held in memory and reused for about 15 minutes before a fresh one is requested, so the site isn't re-authenticating on every single submission if several come in close together. (Note: because this runs on Vercel's serverless infrastructure, each server instance is fairly short-lived anyway, so this caching is a minor optimization rather than something that needs monitoring.)
-- With a valid token in hand, the site sends a POST request to Salesforce's REST API (`/services/data/v59.0/sobjects/Lead/`) to create a new Lead record.
-- `LeadSource` is hardcoded to `"Website"` since it's a controlled picklist value on this org (free text isn't accepted there). The literal page URL the lead came from is instead sent to a separate custom field, `Source_URL__c`.
-- `Company` defaults to `"Individual"` if not otherwise set, since Salesforce's Lead object requires a Company value and most of these leads are individual consumers, not businesses.
+### Main website
 
-### 2.3 Fields populated on the Salesforce Lead object
+`https://loanstreamlinepro.com/`
 
-| Internal Field | Salesforce API Name | Notes |
-|---|---|---|
-| First Name | `FirstName` | Split from the full name entered on the form |
-| Last Name | `LastName` | Split from the full name entered on the form |
-| Phone | `Phone` | |
-| Email | `Email` | |
-| State | `State` | |
-| Loan Amount | `Loan_Amount__c` | Custom field, already existed on the org |
-| Loan Term | `Loan_Term__c` | Custom field, already existed on the org |
-| Estimated Monthly Payment | `Est_Monthly_Payment__c` | Custom field, already existed on the org |
-| Estimated Total Cost | `Est_Total_Cost__c` | Custom field, already existed on the org |
-| Unsecured Debt Total | `Total_Estimated_Debt__c` | Reuses an existing field rather than creating a duplicate |
-| Estimated Savings | `Est_Savings__c` | Custom field, already existed on the org |
-| SMS Consent | `SMS_Consent__c` | Custom field, already existed on the org |
-| Communications Consent | `Comms_Consent__c` | Custom field, already existed on the org |
-| Quote ID | `Applicant_Reference_ID__c` | Reuses an existing field as the semantic fit for a quote/reference number |
-| Source URL | `Source_URL__c` | The full calculator URL the lead was submitted from |
-| Lead Source | `LeadSource` | Hardcoded to `"Website"` (controlled picklist) |
-| Company | `Company` | Defaults to `"Individual"` if not set |
+Used for:
 
-`Name` (a read-only compound field on Lead) and `submittedAt` are intentionally not sent — `Name` is derived automatically from First/Last Name, and `CreatedDate` already captures submission timing without needing a duplicate field.
+- Main public website
+- Calculator / standard inquiry flow
+- Blog and resources
+- Privacy Policy
+- Terms of Use
+- SMS Terms
+- Important Disclosures
+- General support/contact traffic
 
-### 2.4 What was verified live
+### Personalized PURL domain
 
-- Successfully authenticated against the real Connected App and received a valid access token (confirmed token type, scope, and length in the response).
-- Confirmed the Lead object and every custom field listed above exists on the live org and is createable via the API — none of this was assumed from documentation, it was checked directly against the org.
+`https://lspoffer.app/{short_code}`
 
-## 3. GoHighLevel (GHL) Integration
+Used for personalized PURL pages only. The current short-code format is five alphanumeric characters, for example:
 
-### 3.1 Background
+`https://lspoffer.app/Kx9mQ`
 
-GHL was already partially wired up from earlier work, using GHL's Contacts API with a Private Integration Token. The account in question is the "Loan Streamline Pro" location (Location ID `oY7nDZUrZG0KegzadZgI`). Every lead is tagged `sms-web-purl-aff` on creation so the marketing/SMS side can filter for these leads specifically.
+Hostname routing is implemented in:
 
-An earlier audit of the code found that it was already mapping several fields (loan amount, loan term, estimated payment, estimated total cost, unsecured total, estimated savings, SMS consent, quote ID, submitted-at) to GHL custom field keys that did not actually exist in the GHL location — they had been assumed rather than confirmed. Only one related field, "Debt Amount," genuinely existed. Sending unmapped fields wasn't causing failures (GHL just wouldn't store data for fields it doesn't recognize), but it meant that data the sales/marketing team expected to see in GHL was silently going nowhere.
+`proxy.ts`
 
-### 3.2 What was done
+Expected production behavior:
 
-Nine new custom fields were created directly in the GHL location (Settings → Custom Fields → Contact object → "Additional Info" folder), matching what the site's calculator actually collects:
+- `loanstreamlinepro.com` serves the main website.
+- `lspoffer.app/{valid-looking-short-code}` serves the personalized PURL route.
+- PURL-style paths are not publicly served from `loanstreamlinepro.com`.
+- Non-PURL traffic on `lspoffer.app` redirects to the equivalent path on the main domain.
+- Example: `lspoffer.app/privacy` redirects to `loanstreamlinepro.com/privacy`.
+- Vercel preview URLs remain unrestricted so both the main site and `/[id]` route can be reviewed before DNS cutover.
 
-- Loan Amount
-- Loan Term
-- Est Monthly Payment
-- Est Total Cost
-- Est Savings
-- SMS Consent
-- Communications Consent
-- Quote ID
-- Submitted At
+Both domains should ultimately be attached to the same production Vercel project so the host-routing logic can enforce the split.
 
-All nine were created as "Single line" text fields. (Field type in GHL doesn't restrict what the Contacts API can write to a field — a value sent to a "Single line" field is stored the same way it would be for a more specific type like "Monetary" — so this was the simplest, most reliable choice and avoids any type-mismatch issues with the values the calculator produces.)
+## Lead Routing Architecture
 
-After creation, the real field keys were pulled directly from GHL's API (rather than assumed from naming convention) to make sure the code maps to exactly what GHL actually generated:
+The codebase is structured to continue feeding the existing ADV backend systems:
 
-| Field Name | GHL Field Key |
-|---|---|
-| Loan Amount | `contact.loan_amount` |
-| Loan Term | `contact.loan_term` |
-| Est Monthly Payment | `contact.est_monthly_payment` |
-| Est Total Cost | `contact.est_total_cost` |
-| Est Savings | `contact.est_savings` |
-| SMS Consent | `contact.sms_consent` |
-| Communications Consent | `contact.communications_consent` |
-| Quote ID | `contact.quote_id` |
-| Submitted At | `contact.submitted_at` |
-| Debt Amount (pre-existing) | `contact.debt_amount` |
+```text
+Main LSP form / Personalized PURL
+              |
+              v
+       Next.js API routes
+              |
+              v
+        Backend routing
+        /      |       \
+       v       v        v
+ Salesforce   GHL    Supabase
+```
 
-The code (`lib/backendcolumns.ts` and `lib/backends/ghl-api.ts`) was then updated to map every one of these fields to its real key, and to actually include Communications Consent in the payload sent to GHL (it had been mapped in the shared field list but was missing from the code that builds the actual API request — that gap was closed as part of this work).
+The website rebrand does **not** create a separate CRM stack for LSP.
 
-### 3.3 Fields sent to GHL on contact creation
+## Current Backend Configuration in Code
 
-| Internal Field | GHL Field | Notes |
-|---|---|---|
-| First Name | `firstName` | Native contact field |
-| Last Name | `lastName` | Native contact field |
-| Phone | `phone` | Native contact field |
-| Email | `email` | Native contact field |
-| State | `state` | Native contact field |
-| Loan Amount | Custom: Loan Amount | |
-| Loan Term | Custom: Loan Term | |
-| Estimated Monthly Payment | Custom: Est Monthly Payment | |
-| Estimated Total Cost | Custom: Est Total Cost | |
-| Unsecured Debt Total | Custom: Debt Amount | Reuses pre-existing field |
-| Estimated Savings | Custom: Est Savings | |
-| SMS Consent | Custom: SMS Consent | Sent as "Yes"/"No" |
-| Communications Consent | Custom: Communications Consent | Sent as "Yes"/"No" |
-| Quote ID | Custom: Quote ID | |
-| Submitted At | Custom: Submitted At | |
-| Source | `source` | Native contact field |
-| Tag | `sms-web-purl-aff` | Applied to every contact created |
+The standard calculator currently has these backend paths configured in `lib/backendconnect.ts`:
 
-### 3.4 What was verified live
+- Supabase: enabled
+- GHL Contacts API: enabled
+- GHL inbound webhook: disabled by default
+- Salesforce REST API: enabled
 
-- Confirmed via GHL's own custom-fields API (not assumed) that all 10 fields above exist on the live "Loan Streamline Pro" location, with the exact keys listed.
-- All field creation was done directly in the live GHL account through the browser, not a sandbox.
+The owner should review these switches before production and enable/disable each path based on the final architecture.
 
-## 4. Supabase Integration
+## GoHighLevel (GHL)
 
-### 4.1 Background
+### LSP brand attribution
 
-Supabase serves as the site's own internal record of every lead, independent of Salesforce or GHL. It was already partially built out; the main piece of remaining work was making sure duplicate submissions from the same person don't create duplicate rows.
+The LSP identification tag is:
 
-### 4.2 How it works
+`sms-web-purl-lsp`
 
-- The site connects to a Supabase project (`oyaulgwfbmlvycjudvyp`) using its REST API (PostgREST) and a "publishable key," which is Supabase's modern equivalent of the legacy anon key and behaves the same way for this purpose.
-- Submissions use an "upsert" — insert-or-update — keyed on the `email` column. If a row with that email already exists, its data is updated with the newest submission; if not, a new row is inserted. This is implemented via PostgREST's `?on_conflict=email` parameter with `Prefer: resolution=merge-duplicates`.
-- Practically, this means someone filling out the calculator a second time (say, updating their loan amount) updates their existing record instead of creating a second, conflicting one.
+The standard GHL Contacts API adapter applies this tag when creating a contact.
 
-### 4.3 Fields stored in the `leads` table
+The personalized PURL flow also adds `sms-web-purl-lsp` separately so existing ADV/GHL status tags are not intentionally replaced.
 
-| Internal Field | Supabase Column |
-|---|---|
-| Full Name | `full_name` |
-| First Name | `first_name` |
-| Last Name | `last_name` |
-| Phone | `phone` |
-| Email | `email` (upsert key) |
-| State | `state` |
-| Loan Amount | `loan_amount` |
-| Loan Term | `loan_term` |
-| Estimated Monthly Payment | `estimated_monthly_payment` |
-| Estimated Total Cost | `estimated_total_cost` |
-| Unsecured Debt Total | `unsecured_total` |
-| Estimated Savings | `estimated_savings` |
-| SMS Consent | `sms_consent` |
-| Communications Consent | `communications_consent` |
-| Quote ID | `quote_id` |
-| Submitted At | `submitted_at` |
-| Source | `source` |
+### Existing GHL assumptions to verify
 
-### 4.4 What was verified live
+The current code contains existing LSP GHL location/custom-field configuration inherited from prior development. The standard calculator adapter uses stored GHL custom-field IDs, and the personalized PURL flow uses additional custom-field keys.
 
-- Confirmed the `leads` table exists in the production Supabase project and that every column above is present and queryable — checked directly against the live database, not assumed from a schema file.
+The owner should verify before launch:
 
-## 5. Where the Configuration Lives
+- Final GHL Location ID
+- Private integration/API token permissions
+- All custom-field IDs and keys used by the calculator
+- All custom-field keys used by the PURL qualification flow
+- Whether GHL webhook routing will be used in addition to the Contacts API
+- Existing workflow behavior for `qualified`, `declined`, and `sms-web-purl-lsp`
+- That additive tag behavior preserves existing ADV synchronization/status tags
 
-All credentials (Salesforce Client ID/Secret and instance URL, GHL API key and Location ID, Supabase URL and key) are stored as environment variables on the hosting platform, not hardcoded in the source code, and `.env.local` (where these are set locally for development) is excluded from version control via `.gitignore`. This means the secrets themselves are never committed to GitHub.
+Relevant files:
 
-For reference, the environment variable names involved are:
+- `lib/backendconnect.ts`
+- `lib/backends/ghl-api.ts`
+- `lib/backends/ghl-webhook.ts`
+- `lib/qualification.ts`
+- `app/api/qualify-lead/route.ts`
 
-- `SALESFORCE_INSTANCE_URL`, `SALESFORCE_CLIENT_ID`, `SALESFORCE_CLIENT_SECRET`
-- `GHL_API_KEY`, `GHL_LOCATION_ID`
-- `SUPABASE_URL`, `SUPABASE_ANON_KEY`
+## Salesforce
 
-(Actual values are intentionally not included in this document — they're set in the environment configuration directly.)
+Two Salesforce paths exist in the codebase:
 
-## 6. Code Changes Summary
+1. Standard calculator lead routing through `lib/backends/salesforce.ts`
+2. Personalized PURL upsert routing in `lib/qualification.ts`
 
-For anyone technical reviewing this later, the main files touched:
+The standard path is currently configured for Salesforce REST API / OAuth2 client-credentials authentication.
 
-- `lib/backends/salesforce.ts` — rebuilt to authenticate via OAuth2 client-credentials flow with in-memory token caching, replacing the old static-token approach.
-- `lib/backendconnect.ts` — Salesforce config switched from a single `accessToken` field to `clientId`/`clientSecret`.
-- `lib/backendcolumns.ts` — central field-mapping file for all three backends; GHL section updated with the real field keys for all 9 new fields plus the pre-existing Debt Amount field.
-- `lib/backends/ghl-api.ts` — added the missing Communications Consent field to the payload sent to GHL.
-- `.env.local` / `.env.example` — updated to reflect the new Salesforce variables and document the Supabase variables.
+The personalized PURL path currently upserts on the Salesforce external ID field:
 
-This single-file mapping approach (`lib/backendcolumns.ts`) means that if any field name ever changes on the Salesforce, GHL, or Supabase side in the future, it can be updated in one place without touching the integration logic for any of the three systems.
+`Short_Code__c`
 
-## 7. Verification Performed
+It also contains existing ADV Salesforce custom-field and numeric picklist mappings.
 
-Every claim of "this works" above was checked directly against the live, production account for that system — not assumed from documentation or code review alone:
+The owner should verify before production:
 
-- Salesforce: live OAuth token exchange succeeded; Lead object and all custom fields confirmed to exist and be writable.
-- GHL: all 10 relevant custom fields confirmed to exist via GHL's own API, with exact field keys pulled directly (not guessed).
-- Supabase: `leads` table and every mapped column confirmed to exist via a live query against the production database.
+- Salesforce instance URL
+- Connected App/client-credentials configuration
+- API permissions
+- Lead object field API names
+- `Short_Code__c` external-ID behavior
+- Custom field mappings
+- Numeric picklist mappings used by the PURL flow
+- Desired LSP-specific LeadSource/source attribution
 
-## 8. Outstanding / Recommended Next Step
+**Important existing behavior:** the standard Salesforce adapter still contains the inherited ADV LeadSource value `Website-AFF`. Because the underlying CRM remains ADV, this was not changed automatically. The owner should decide whether production LSP leads should continue using that value or be changed to a dedicated LSP source such as `Website-LSP`, depending on the Salesforce configuration and reporting plan.
 
-The one thing not yet done is a full end-to-end test: submitting a real lead through the actual calculator on the live site and confirming it lands correctly in all three systems at once. This was intentionally not done as part of this work because it would create permanent, real records in production Salesforce, GHL, and Supabase — not test data. Recommend running one real test submission at a convenient time (ideally using a real name/email/phone that's easy to identify and clean up afterward) to confirm the complete chain works end to end.
+## Supabase / PURL Data Layer
+
+Supabase remains the source used for standard lead storage and personalized PURL lookup/update behavior.
+
+The PURL flow expects the existing database-side RPC functions used by the inherited ADV flow, including:
+
+- `get_lead_prefill`
+- `update_lead_qualification`
+
+The owner should confirm these functions, permissions/RLS behavior, table structure, short-code generation, and production project configuration before launch.
+
+The PURL lookup code supports a server-side service-role key when required. That credential must remain server-side only.
+
+## Existing Personalized Qualification Logic
+
+The LSP PURL page has been rebranded publicly, but the server-side qualification logic from the existing ADV implementation remains in the code.
+
+Current inherited logic includes:
+
+- Minimum qualifying amount: `$15,000`
+- State servicing rules
+- Income check
+- Internal result values of `qualified` or `declined`
+- GHL result tagging using `qualified` / `declined`
+
+The owner should review these rules as business logic before production. They are preserved for continuity and are not being represented as newly approved LSP underwriting or lending criteria. LSP remains a technology service and not the lender.
+
+Relevant file:
+
+`lib/qualification.ts`
+
+## Customer-Facing LSP Identity
+
+- Main domain: **loanstreamlinepro.com**
+- PURL domain: **lspoffer.app**
+- Phone: **(833) 289-0694**
+- Email: **support@loanstreamlinepro.com**
+- Address: **1712 Pioneer Ave Suite 500, Cheyenne, WY 82001**
+
+Loan Streamline Pro is presented as a technology service that helps connect consumers with independent Lending Partners. LSP is not presented as the direct lender.
+
+## Calculator / Disclosures
+
+The original calculator experience has been restored, including the debt slider, term slider, illustrative payment comparison, contact step, and result step.
+
+The calculator uses hypothetical comparison assumptions including 5.99% APR and 24.9% APR. These are explicitly disclosed as illustrative assumptions only and are not presented as advertised or guaranteed rates.
+
+The website also includes the approved representative example:
+
+> For a personal loan of $10,000 with a 36-month term at 10% APR, the monthly payment would be approximately $322.67, and the total amount paid over the life of the loan would be $11,616.12. This example includes interest and assumes no additional fees.
+
+## Reviews
+
+LSP review cards are static website content. They do not depend on a live Trustpilot widget, Trustpilot API, or live Trustpilot score.
+
+## Deployment / Environment Handoff
+
+The repository contains an `.env.example` template only. Real production credentials are not intended to be committed to GitHub.
+
+The owner should configure the final production values in the owner's Vercel project and validate each platform connection there.
+
+Expected configuration categories include:
+
+- Supabase
+- GoHighLevel
+- Salesforce
+- Optional GHL webhook routing
+- Optional analytics
+
+## Validation Status
+
+Completed during this handoff:
+
+- Customer-facing rebrand review
+- Calculator restoration
+- Legal/disclosure updates
+- CTA cleanup
+- Logo/favicon updates
+- Main/PURL hostname-routing code update
+- Next.js/Vercel production build validation
+
+Not completed during this handoff by design:
+
+- Live end-to-end GHL test
+- Live end-to-end Salesforce test
+- Live end-to-end Supabase test
+- Production webhook/workflow verification
+- Final production domain/DNS cutover
+
+Those items are part of the owner's integration/development completion phase.
+
+## Owner Completion Checklist
+
+Before launch, the owner should:
+
+1. Import/place the approved repository in the final GitHub account or organization.
+2. Connect the final repository to the owner's Vercel project.
+3. Configure all production environment values.
+4. Attach both `loanstreamlinepro.com` and `lspoffer.app` to the same Vercel project.
+5. Validate the main-domain and PURL-domain routing behavior.
+6. Confirm Supabase PURL lookup/update functions and short-code data.
+7. Verify all GHL field IDs/keys, tags, workflows, and API permissions.
+8. Verify all Salesforce field mappings, LeadSource behavior, external-ID handling, and OAuth permissions.
+9. Review the inherited PURL qualification rules and adjust them if needed.
+10. Run controlled end-to-end test submissions through both the main calculator and personalized PURL flow.
+11. Confirm the test records arrive correctly in every production platform before DNS cutover/launch.
+
+## Ownership Note
+
+The current GitHub/Vercel environment is a temporary development and delivery environment. The owner is expected to take over the integrations and finish the remaining production development in the owner's systems.

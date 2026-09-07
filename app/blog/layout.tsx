@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Financial Resources & Blog | Advantage First Financial',
-  description: 'Expert insights on debt consolidation, credit optimization, interest rate trends, and personal loan strategies from the Advantage First Financial editorial team.',
+  title: 'Financial Resources & Blog | Loan Streamline Pro',
+  description: 'Educational resources from Loan Streamline Pro about borrowing basics, debt management, credit concepts, and understanding Lending Partner offers.',
 };
 
 export default function BlogLayout({ children }: { children: React.ReactNode }) {

@@ -1,11 +1,14 @@
 /**
  * POST /api/qualify-lead
  *
- * Receives the qualification form submission from adv1st.app/{unique_id},
- * validates it, applies decline rules server-side, and fans it out:
+ * Receives the personalized LSP PURL qualification form submission,
+ * validates it, applies qualification rules server-side, and fans it out:
  *   • Supabase — UPDATE lead row by unique_id (source of truth)
- *   • GHL — inbound webhook (workflow tags 'qualified' or 'declined')
- * All data is collected and stored regardless of the decline outcome.
+ *   • GHL — existing ADV workflow/API paths
+ *   • Salesforce — existing ADV CRM path
+ *
+ * Every LSP PURL submission is also additively tagged in GHL with
+ * `sms-web-purl-lsp` without replacing any existing contact tags.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -15,6 +18,91 @@ import {
   evaluateDecline,
   QualificationSubmission,
 } from '@/lib/qualification';
+import { backendConfig } from '@/lib/backendconnect';
+import { BackendResult } from '@/lib/leadTypes';
+
+async function addLspPurlTag(submission: QualificationSubmission): Promise<BackendResult> {
+  const apiKey = process.env.GHL_API_KEY || backendConfig.ghlApi.apiKey || '';
+  const locationId = process.env.GHL_LOCATION_ID || backendConfig.ghlApi.locationId || '';
+
+  if (!apiKey || !locationId) {
+    return {
+      backend: 'ghl-lsp-tag',
+      success: false,
+      message: 'Skipped sms-web-purl-lsp tag — missing GHL API credentials',
+    };
+  }
+
+  try {
+    // Upsert without a tags property so existing ADV/GHL tags are preserved.
+    const upsertRes = await fetch('https://services.leadconnectorhq.com/contacts/upsert', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+        Version: '2021-07-28',
+      },
+      body: JSON.stringify({
+        locationId,
+        email: submission.email,
+        phone: submission.phone,
+      }),
+    });
+
+    if (!upsertRes.ok) {
+      const text = await upsertRes.text();
+      return {
+        backend: 'ghl-lsp-tag',
+        success: false,
+        message: `Unable to resolve GHL contact for LSP tag (HTTP ${upsertRes.status}): ${text}`,
+      };
+    }
+
+    const data = (await upsertRes.json()) as { contact?: { id?: string } };
+    const contactId = data.contact?.id;
+    if (!contactId) {
+      return {
+        backend: 'ghl-lsp-tag',
+        success: false,
+        message: 'GHL contact resolved without a contact ID; LSP tag was not applied',
+      };
+    }
+
+    const tagRes = await fetch(
+      `https://services.leadconnectorhq.com/contacts/${contactId}/tags`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`,
+          Version: '2021-07-28',
+        },
+        body: JSON.stringify({ tags: ['sms-web-purl-lsp'] }),
+      }
+    );
+
+    if (!tagRes.ok) {
+      const text = await tagRes.text();
+      return {
+        backend: 'ghl-lsp-tag',
+        success: false,
+        message: `GHL contact saved but sms-web-purl-lsp tag failed (HTTP ${tagRes.status}): ${text}`,
+      };
+    }
+
+    return {
+      backend: 'ghl-lsp-tag',
+      success: true,
+      message: 'Applied sms-web-purl-lsp tag in GHL',
+    };
+  } catch (error) {
+    return {
+      backend: 'ghl-lsp-tag',
+      success: false,
+      message: `LSP GHL tag error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+    };
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -54,7 +142,6 @@ export async function POST(request: NextRequest) {
       ? forwardedFor.split(',')[0].trim()
       : request.headers.get('x-real-ip') || '';
 
-    // Decline rules — server-side authority (min amount, serviced state, income)
     const declineReason = evaluateDecline({
       loanAmount: Number(body.loanAmount) || 0,
       state: String(body.state),
@@ -85,7 +172,9 @@ export async function POST(request: NextRequest) {
       declineReason: declineReason ?? '',
     };
 
-    const results = await routeQualifiedLeadToBackends(submission);
+    const routedResults = await routeQualifiedLeadToBackends(submission);
+    const lspTagResult = await addLspPurlTag(submission);
+    const results = [...routedResults, lspTagResult];
     const anySuccess = results.some((r) => r.success);
 
     return NextResponse.json(
