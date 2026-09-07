@@ -81,7 +81,7 @@ export default function GlowMovingButton({
   const inner = (
     <span
       ref={containerRef}
-      className={`relative inline-flex items-center justify-center rounded-full bg-gradient-to-r from-af-red to-[#E63935] ${className}`}
+      className={`relative inline-flex items-center justify-center rounded-full bg-gradient-to-r from-af-blue to-[#1D4ED8] ${className}`}
       id={id}
     >
       {/* Animated border mask layer */}
@@ -106,7 +106,7 @@ export default function GlowMovingButton({
           style={{
             width: 200,
             height: 30,
-            background: 'linear-gradient(to right, transparent 0%, rgba(15,117,188,0.1) 30%, rgba(15,117,188,0.5) 70%, rgba(15,117,188,1) 100%)',
+            background: 'linear-gradient(to right, transparent 0%, rgba(56,189,248,0.1) 30%, rgba(56,189,248,0.55) 70%, rgba(56,189,248,1) 100%)',
           }}
         />
       </div>
