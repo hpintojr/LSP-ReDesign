@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Licensing & State Regulatory Disclosures | Advantage First Financial (NMLS #2674295)',
-  description: 'Official state licensing, regulatory approvals, and NMLS credentials for Advantage First Financial LLC (NMLS ID #2674295) across Texas OCCC and Utah DFI.',
+  title: 'Service & Lending Partner Disclosures | Loan Streamline Pro',
+  description: 'Understand the role of Loan Streamline Pro and the independent Lending Partners that may provide financial products.',
 };
 
 export default function LicensesLayout({ children }: { children: React.ReactNode }) {
