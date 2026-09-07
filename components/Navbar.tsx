@@ -109,14 +109,14 @@ export default function Navbar({ onEstimatorClick }: NavbarProps) {
             className="flex items-center gap-1.5 group"
             aria-label="Loan Streamline Pro homepage"
           >
-            <div className="relative h-14 w-52 sm:h-20 sm:w-80 transition-transform duration-200 group-hover:scale-[1.02]">
+            <div className="relative h-14 w-52 sm:h-24 sm:w-[330px] transition-transform duration-200 group-hover:scale-[1.02]">
               <Image
                 src="/images/lsp-logo.svg"
-                alt="Loan Streamline Pro"
+                alt="Loan Streamline Pro — Smarter Connections, Simpler Options"
                 fill
                 className="object-contain object-left"
                 priority
-                sizes="(max-width: 768px) 208px, 320px"
+                sizes="(max-width: 768px) 208px, 330px"
               />
             </div>
           </Link>
