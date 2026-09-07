@@ -18,7 +18,8 @@ What has been completed in this handoff:
 - Existing ADV Salesforce / GHL / Supabase integration code was preserved rather than replaced.
 - LSP lead attribution was added in GHL with `sms-web-purl-lsp`.
 - The two-domain website/PURL routing model was updated for LSP.
-- The current branch compiles successfully in Vercel Preview.
+- The customer-facing palette was refined to a fintech blue/navy/cyan system aligned with the LSP logo.
+- The current branch compiles successfully in Vercel Preview/Production builds.
 
 What is **not** being represented as complete or production-verified:
 
@@ -201,6 +202,29 @@ Relevant file:
 
 Loan Streamline Pro is presented as a technology service that helps connect consumers with independent Lending Partners. LSP is not presented as the direct lender.
 
+## Visual Brand System
+
+The final customer-facing color direction is intentionally blue-led to align the website with the new LSP logo and create a more fintech/technology-oriented presentation.
+
+Primary palette:
+
+- Deep Navy: `#0F172A`
+- Royal Blue: `#2563EB`
+- Deep Action Blue: `#1D4ED8`
+- Sky/Cyan Accent: `#38BDF8`
+- Soft Blue: `#EFF6FF`
+- Slate text: `#64748B`
+- Success Green: `#16A34A`
+- White: `#FFFFFF`
+
+Primary conversion buttons and major accent surfaces now use royal/deep blue instead of the historical red CTA treatment. Red should be reserved for genuine error/warning states rather than normal conversion branding.
+
+Some internal CSS utility/token names still use the historical `af-red` identifier for compatibility with inherited component markup, but those legacy tokens now render as LSP blue. This is intentional and avoids a broad markup rename during handoff.
+
+Main visual-system file:
+
+`app/globals.css`
+
 ## Calculator / Disclosures
 
 The original calculator experience has been restored, including the debt slider, term slider, illustrative payment comparison, contact step, and result step.
@@ -238,6 +262,7 @@ Completed during this handoff:
 - Legal/disclosure updates
 - CTA cleanup
 - Logo/favicon updates
+- Fintech blue/navy/cyan visual-system refinement
 - Main/PURL hostname-routing code update
 - Next.js/Vercel production build validation
 
