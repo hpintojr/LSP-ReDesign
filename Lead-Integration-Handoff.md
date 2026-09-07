@@ -19,7 +19,7 @@ What has been completed in this handoff:
 - LSP lead attribution was added in GHL with `sms-web-purl-lsp`.
 - The two-domain website/PURL routing model was updated for LSP.
 - The customer-facing palette was refined to a fintech blue/navy/cyan system aligned with the LSP logo.
-- The mobile hero headline was fixed so the same rotating/typewriter messaging used on desktop is visible and functional on mobile, including the `Lending Partners` phrase.
+- The mobile hero headline was fixed so the same rotating messaging used on desktop is visible and functional on mobile, including the `Lending Partners` phrase.
 - The current branch compiles successfully in Vercel Preview/Production builds.
 
 What is **not** being represented as complete or production-verified:
@@ -228,18 +228,21 @@ Main visual-system file:
 
 ## Mobile Hero Headline
 
-The LSP hero uses one rotating/typewriter sequence on both desktop and mobile:
+The LSP hero uses one rotating sequence on both desktop and mobile:
 
 - `personal loan options`
 - `consolidation options`
 - `Lending Partners`
 - `a clearer next step`
 
-The mobile issue was caused by the heading container being hard-limited to `90px` with `overflow-hidden`. The animation itself was still running, but the rotating second line was clipped below the visible area. This was corrected in:
+Two separate mobile issues were corrected in `components/TypewriterHeader.tsx`:
 
-`components/TypewriterHeader.tsx`
+1. The heading container had been hard-limited to `90px` with `overflow-hidden`, which clipped the rotating second line below the visible area.
+2. The accessibility/reduced-motion branch previously froze the first phrase. This can be noticeable on iOS when Reduce Motion is enabled. The current implementation still rotates through all four phrases in reduced-motion mode, but changes the phrase without the character-by-character typing effect.
 
-The LSP implementation now uses responsive minimum height, visible overflow, and an explicit line break so the rotating phrase remains visible on narrow screens. The same JavaScript animation logic is used on desktop and mobile. Reduced-motion users still receive a non-animated fallback.
+The final LSP mobile implementation uses a compact responsive minimum height (`104px` at the mobile breakpoint), visible overflow, and an explicit line break. This avoids the large empty gap created by an earlier temporary `178px` mobile minimum height while still leaving enough room for the rotating phrase.
+
+Normal-motion users receive the typewriter effect. Reduced-motion users receive the same rotating message sequence without the typing animation.
 
 ### ADV mobile follow-up for owner
 
@@ -252,8 +255,11 @@ That ADV site was not modified as part of this LSP handoff. When the owner conti
 - `overflow-hidden` clipping the animated line
 - Breakpoint classes that hide the rotating span below desktop widths
 - Animation initialization that is conditionally disabled on mobile
+- A `prefers-reduced-motion` / iOS Reduce Motion branch that returns a permanently static first phrase instead of rotating text without animation
 
-The preferred behavior is to let mobile use the same rotating sequence as desktop, just as this LSP implementation now does. `components/TypewriterHeader.tsx` in this repository can be used as a reference pattern. Test the ADV fix specifically at approximately **375px, 390px, and 430px** viewport widths so the rotating text has enough vertical space and does not get clipped.
+The preferred behavior is to let mobile use the same rotating sequence as desktop. If reduced motion is detected, cycle the messages without the typing animation rather than freezing one phrase. `components/TypewriterHeader.tsx` in this repository can be used as a reference pattern.
+
+Test the ADV fix specifically at approximately **375px, 390px, and 430px** viewport widths so the rotating text has enough vertical space without creating a large blank area beneath the headline.
 
 ## Calculator / Disclosures
 
