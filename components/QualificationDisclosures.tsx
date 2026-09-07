@@ -33,7 +33,15 @@ export default function QualificationDisclosures() {
           <div className="mt-0.5 rounded-xl bg-af-blue-soft p-2 text-af-blue"><Phone className="h-5 w-5" /></div>
           <div>
             <h2 className="font-display text-lg font-extrabold text-af-navy">Contact LSP</h2>
-            <p className="mt-1">Loan Streamline Pro · 1712 Pioneer Ave Suite 500, Cheyenne, WY 82001 · <a href="tel:+18332890694" className="text-af-blue underline">(833) 289-0694</a> · <a href="mailto:support@loanstreamlinepro.com" className="text-af-blue underline">support@loanstreamlinepro.com</a></p>
+            <div className="mt-1 space-y-0.5">
+              <p>Loan Streamline Pro</p>
+              <p>1712 Pioneer Ave Suite 500, Cheyenne, WY 82001</p>
+              <p>
+                <a href="tel:+18332890694" className="text-af-blue underline whitespace-nowrap">(833) 289-0694</a>
+                <span className="mx-1.5">·</span>
+                <a href="mailto:support@loanstreamlinepro.com" className="text-af-blue underline break-all">support@loanstreamlinepro.com</a>
+              </p>
+            </div>
           </div>
         </div>
       </div>
