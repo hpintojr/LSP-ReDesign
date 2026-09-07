@@ -7,7 +7,10 @@ import { LeadData, BackendResult } from '../leadTypes';
 import { mapLeadToBackend } from '../backendcolumns';
 
 export async function sendToGhlWebhook(lead: LeadData, webhookUrl: string): Promise<BackendResult> {
-  const payload = mapLeadToBackend(lead, 'ghlWebhook');
+  const payload = {
+    ...mapLeadToBackend(lead, 'ghlWebhook'),
+    tags: ['sms-web-purl-lsp'],
+  };
 
   try {
     const response = await fetch(webhookUrl, {
