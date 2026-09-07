@@ -18,6 +18,12 @@ LSP is another brand of the same underlying ADV company operation. The website i
 
 Do not replace or disconnect the ADV CRM wiring during deployment unless the owner intentionally changes the backend architecture.
 
+## Current Testing vs. Final Ownership
+
+The current GitHub/Vercel setup is a **temporary development and delivery environment** used to test the redesign before handoff. It is not intended to be the owner's final production ownership boundary.
+
+For final delivery, the owner should place the approved code in the owner's GitHub account or organization, connect that repository to the owner's Vercel account, configure the owner's environment variables, verify the integrations, and only then attach the production domain.
+
 ## Application Architecture
 
 The site is a Next.js application with a multi-backend lead-routing layer.
