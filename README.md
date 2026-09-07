@@ -1,6 +1,6 @@
 # Loan Streamline Pro — Website & Backend Configuration
 
-This repository powers the redesigned **Loan Streamline Pro (LSP)** website.
+This repository contains the redesigned **Loan Streamline Pro (LSP)** website prepared for handoff to the site owner.
 
 ## Brand & Service Model
 
@@ -12,22 +12,28 @@ Primary public contact information:
 - **Email:** support@loanstreamlinepro.com
 - **Address:** 1712 Pioneer Ave Suite 500, Cheyenne, WY 82001
 
+## Ownership / CRM Relationship
+
+LSP is another brand of the same underlying ADV company operation. The website is LSP-branded on the customer-facing side while continuing to use the existing ADV CRM infrastructure for Salesforce, GoHighLevel (GHL), and Supabase.
+
+Do not replace or disconnect the ADV CRM wiring during deployment unless the owner intentionally changes the backend architecture.
+
 ## Application Architecture
 
 The site is a Next.js application with a multi-backend lead-routing layer.
 
 ```text
-Website inquiry / newsletter form
-              │
-              ▼
-       Next.js API route
-              │
-              ▼
-     Backend orchestrator
-       ├── Supabase
-       ├── GHL Webhook
-       ├── GHL API
-       └── Salesforce
+Website lead / PURL submission
+            │
+            ▼
+     Next.js API route
+            │
+            ▼
+    Backend orchestrator
+      ├── Supabase
+      ├── GHL Contacts API
+      ├── optional GHL Webhook
+      └── Salesforce
 ```
 
 Key files:
@@ -35,14 +41,25 @@ Key files:
 | File | Purpose |
 | --- | --- |
 | `app/page.tsx` | Main LSP website |
-| `components/SavingsEstimator.tsx` | LSP informational calculator + inquiry form |
-| `components/QualificationForm.tsx` | Personalized LSP inquiry flow |
-| `app/api/submit-lead/route.ts` | Lead submission endpoint |
+| `components/SavingsEstimator.tsx` | Main LSP inquiry form |
+| `components/QualificationForm.tsx` | Personalized LSP PURL inquiry flow |
+| `app/api/submit-lead/route.ts` | Standard lead submission endpoint |
+| `app/api/qualify-lead/route.ts` | Personalized PURL submission endpoint |
 | `app/api/generate-quote-id/route.ts` | Generates `LSP-######` references |
 | `lib/backendconnect.ts` | Backend connection configuration |
 | `lib/backendcolumns.ts` | Backend field mappings |
 | `lib/backends/index.ts` | Backend routing orchestrator |
 | `data/blogPosts.ts` | LSP educational resource library |
+
+## GHL Lead Identification
+
+LSP lead and PURL submissions are identified in GoHighLevel with:
+
+```text
+sms-web-purl-lsp
+```
+
+The tag is applied without intentionally replacing existing ADV/GHL status tags on personalized PURL records.
 
 ## Run Locally
 
@@ -53,34 +70,60 @@ npm install
 npm run dev
 ```
 
-For a production-style compile check:
+Production-style compile check:
 
 ```bash
 npm run build
 ```
 
-For linting:
+Lint:
 
 ```bash
 npm run lint
 ```
 
-## Environment & Security
+## Environment Variables
 
-Do not commit production credentials, tokens, API keys, database passwords, service-role keys, or webhook secrets to the repository. Use environment variables for production secrets.
+Copy `.env.example` to `.env.local` for local development. For Vercel, add the values under **Project Settings → Environment Variables**.
 
-Typical integrations may require values for services such as:
+Current integrations use or may use:
 
 ```bash
+NEXT_PUBLIC_POSTHOG_KEY=
+NEXT_PUBLIC_POSTHOG_HOST=
+
 SUPABASE_URL=
 SUPABASE_ANON_KEY=
-GHL_WEBHOOK_URL=
+SUPABASE_SERVICE_ROLE_KEY=
+
 GHL_API_KEY=
 GHL_LOCATION_ID=
+GHL_WEBHOOK_URL=
+GHL_QUALIFY_WEBHOOK_URL=
+
+SALESFORCE_INSTANCE_URL=
+SALESFORCE_CLIENT_ID=
+SALESFORCE_CLIENT_SECRET=
 SALESFORCE_OID=
 ```
 
-Exact variable names should match the implementation in `lib/backendconnect.ts` and the API adapters.
+Never commit real credentials, API tokens, client secrets, database service-role keys, or production webhook secrets to GitHub.
+
+## Owner Vercel Deployment
+
+Recommended handoff process:
+
+1. Transfer/copy the repository into the owner's GitHub account or organization.
+2. Import that GitHub repository into the owner's Vercel account.
+3. Framework should auto-detect as **Next.js**.
+4. Add the required environment variables from `.env.example`.
+5. Deploy a Preview build first.
+6. Test one standard lead submission and one PURL submission.
+7. Confirm the lead reaches the existing ADV Salesforce/GHL/Supabase infrastructure.
+8. In GHL, confirm the LSP record contains the tag `sms-web-purl-lsp`.
+9. After testing, attach `loanstreamlinepro.com` to the owner's production Vercel project and complete the DNS cutover.
+
+No custom Vercel build command is required; the standard Next.js build is used.
 
 ## Lead References
 
@@ -92,31 +135,44 @@ LSP-000002
 LSP-000003
 ```
 
-The counter can use Supabase when configured, with a server-side fallback for development/testing.
+## Customer-Facing Branding
 
-## Consent & Legal Pages
+The active customer-facing identity is Loan Streamline Pro. The repository includes:
 
-The site includes dedicated routes for:
+- `public/images/lsp-logo.svg` — primary wordmark
+- `public/images/lsp-mark.svg` — compact mark
+- `app/icon.svg` — browser/app icon
+
+Legacy Advantage First corporate logo assets have been removed from the LSP rebrand.
+
+## Reviews
+
+Customer review cards on the LSP site are static website content. They are not connected to a live Trustpilot widget, Trustpilot API, or Trustpilot score feed.
+
+## Legal / Disclosure Routes
+
+The site includes:
 
 - `/privacy` — Privacy Policy
 - `/terms-of-use` — Terms of Use
 - `/sms-terms` — SMS Terms & Conditions
 - `/disclosures` — Important Disclosures
-- `/licenses` — Service & Lending Partner Disclosures
 
-The website should consistently distinguish between **Loan Streamline Pro** and any **independent Lending Partner**. Do not add lender licensing, NMLS credentials, approval promises, guaranteed rates, or partner-specific claims to LSP unless they have been independently verified as applicable to LSP.
+The old direct-lender licensing route has intentionally been removed from the LSP brand.
 
-## Deployment Notes
+The website should consistently distinguish Loan Streamline Pro from any independent Lending Partner. Customer-facing lender licensing, NMLS credentials, guaranteed approvals, guaranteed rates, or lender-specific claims should not be added to LSP unless separately verified and approved.
 
-Before production deployment:
+## Final Delivery Checklist
 
-1. Run `npm run build`.
-2. Confirm all environment variables are present in the deployment environment.
-3. Test the homepage inquiry form and personalized inquiry flow.
-4. Verify the (833) 289-0694 phone links.
-5. Verify `support@loanstreamlinepro.com` mail links.
-6. Review privacy, SMS, consent, and Lending Partner disclosures with appropriate compliance/legal counsel.
+Before handing production control to the owner:
+
+- Vercel Preview build is `READY`.
+- Homepage, mobile navigation, forms, PURL flow, footer, legal pages, logo and favicon have been visually reviewed.
+- Environment variables are configured in the owner's Vercel account.
+- One test submission is verified in GHL, Salesforce and Supabase.
+- GHL test record has `sms-web-purl-lsp`.
+- Production domain is attached only after the owner approves the preview.
 
 ## Internal Styling Note
 
-Some CSS/Tailwind design-token names still use the historical `af-*` prefix. Those are internal implementation names only and are not public-facing Advantage First branding. They can be renamed separately later if desired, but changing them is not required for the customer-facing LSP rebrand.
+Some CSS/Tailwind token names retain the historical `af-*` prefix. These are internal implementation identifiers only and are not customer-facing Advantage First branding. Renaming them is not required for delivery.
