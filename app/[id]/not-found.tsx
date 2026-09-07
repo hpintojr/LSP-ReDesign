@@ -15,7 +15,7 @@ export default function NotFound() {
           />
           <h2 className="font-display text-2xl font-black text-af-navy">Link Expired or Invalid</h2>
           <p className="mt-3 text-pv-muted">The personalized link you clicked is no longer active or could not be found. You can still start a new Loan Streamline Pro inquiry from the homepage.</p>
-          <Link href="/" className="mt-6 inline-block rounded-full bg-af-blue px-8 py-3 font-display font-bold text-white transition-colors hover:bg-af-blue-light">Check My Options</Link>
+          <Link href="/" className="mt-6 inline-block rounded-full bg-af-blue px-8 py-3 font-display font-bold text-white transition-colors hover:bg-af-blue-light">Apply Now</Link>
         </div>
       </div>
     </main>
