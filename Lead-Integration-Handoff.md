@@ -19,6 +19,7 @@ What has been completed in this handoff:
 - LSP lead attribution was added in GHL with `sms-web-purl-lsp`.
 - The two-domain website/PURL routing model was updated for LSP.
 - The customer-facing palette was refined to a fintech blue/navy/cyan system aligned with the LSP logo.
+- The mobile hero headline was fixed so the same rotating/typewriter messaging used on desktop is visible and functional on mobile, including the `Lending Partners` phrase.
 - The current branch compiles successfully in Vercel Preview/Production builds.
 
 What is **not** being represented as complete or production-verified:
@@ -225,6 +226,35 @@ Main visual-system file:
 
 `app/globals.css`
 
+## Mobile Hero Headline
+
+The LSP hero uses one rotating/typewriter sequence on both desktop and mobile:
+
+- `personal loan options`
+- `consolidation options`
+- `Lending Partners`
+- `a clearer next step`
+
+The mobile issue was caused by the heading container being hard-limited to `90px` with `overflow-hidden`. The animation itself was still running, but the rotating second line was clipped below the visible area. This was corrected in:
+
+`components/TypewriterHeader.tsx`
+
+The LSP implementation now uses responsive minimum height, visible overflow, and an explicit line break so the rotating phrase remains visible on narrow screens. The same JavaScript animation logic is used on desktop and mobile. Reduced-motion users still receive a non-animated fallback.
+
+### ADV mobile follow-up for owner
+
+This LSP fix also identifies a likely follow-up item in the separate Advantage First (ADV) website. The ADV desktop hero rotates messaging, while the mobile view currently appears static at **“Get the Advantage of financial freedom.”**
+
+That ADV site was not modified as part of this LSP handoff. When the owner continues ADV development (including in a Claude coding session), recommend checking the corresponding ADV hero/typewriter component for:
+
+- A mobile-only static headline branch
+- Fixed mobile height or `max-height`
+- `overflow-hidden` clipping the animated line
+- Breakpoint classes that hide the rotating span below desktop widths
+- Animation initialization that is conditionally disabled on mobile
+
+The preferred behavior is to let mobile use the same rotating sequence as desktop, just as this LSP implementation now does. `components/TypewriterHeader.tsx` in this repository can be used as a reference pattern. Test the ADV fix specifically at approximately **375px, 390px, and 430px** viewport widths so the rotating text has enough vertical space and does not get clipped.
+
 ## Calculator / Disclosures
 
 The original calculator experience has been restored, including the debt slider, term slider, illustrative payment comparison, contact step, and result step.
@@ -263,6 +293,7 @@ Completed during this handoff:
 - CTA cleanup
 - Logo/favicon updates
 - Fintech blue/navy/cyan visual-system refinement
+- Responsive/mobile rotating hero-headline fix
 - Main/PURL hostname-routing code update
 - Next.js/Vercel production build validation
 
@@ -291,6 +322,7 @@ Before launch, the owner should:
 9. Review the inherited PURL qualification rules and adjust them if needed.
 10. Run controlled end-to-end test submissions through both the main calculator and personalized PURL flow.
 11. Confirm the test records arrive correctly in every production platform before DNS cutover/launch.
+12. Optionally apply the documented mobile rotating-headline fix pattern to the separate ADV site so its mobile hero rotates like its desktop hero.
 
 ## Ownership Note
 
