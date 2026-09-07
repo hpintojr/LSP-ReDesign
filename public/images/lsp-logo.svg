@@ -1,31 +1,44 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 650 104" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 136" role="img" aria-labelledby="title desc">
   <title id="title">Loan Streamline Pro</title>
-  <desc id="desc">Compact Loan Streamline Pro navbar logo.</desc>
+  <desc id="desc">Loan Streamline Pro logo with LSP monogram and the slogan Smarter Connections, Simpler Options.</desc>
   <defs>
-    <linearGradient id="lspGradient" x1="8" y1="8" x2="88" y2="88" gradientUnits="userSpaceOnUse">
+    <linearGradient id="markGradient" x1="8" y1="8" x2="104" y2="104" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#38BDF8"/>
-      <stop offset="0.48" stop-color="#2563EB"/>
-      <stop offset="1" stop-color="#1E40AF"/>
+      <stop offset="0.45" stop-color="#2563EB"/>
+      <stop offset="1" stop-color="#1E3A8A"/>
     </linearGradient>
-    <linearGradient id="wordGradient" x1="210" y1="0" x2="425" y2="0" gradientUnits="userSpaceOnUse">
+    <linearGradient id="streamGradient" x1="235" y1="0" x2="500" y2="0" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#2563EB"/>
       <stop offset="1" stop-color="#1D4ED8"/>
     </linearGradient>
   </defs>
-  <g transform="translate(8 8)">
-    <rect width="88" height="88" rx="22" fill="url(#lspGradient)"/>
-    <g fill="none" stroke="#FFFFFF" stroke-width="6.4" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M18 25H34C44 25 49 31 54 37L59 43" opacity="0.88"/>
-      <path d="M18 44H62"/>
-      <path d="M18 63H34C44 63 49 57 54 51L59 45" opacity="0.88"/>
-      <path d="M57 44H69"/>
-      <path d="M63 36L71 44L63 52"/>
-    </g>
-    <circle cx="18" cy="25" r="3.2" fill="#FFFFFF"/>
-    <circle cx="18" cy="44" r="3.2" fill="#FFFFFF"/>
-    <circle cx="18" cy="63" r="3.2" fill="#FFFFFF"/>
+
+  <!-- Primary LSP brand mark -->
+  <g transform="translate(8 12)">
+    <rect width="104" height="104" rx="28" fill="url(#markGradient)"/>
+    <rect x="7" y="7" width="90" height="90" rx="23" fill="none" stroke="#FFFFFF" stroke-opacity="0.18" stroke-width="2"/>
+
+    <!-- Clean monogram -->
+    <text x="52" y="61" text-anchor="middle"
+      font-family="Inter, Avenir Next, Segoe UI, Helvetica Neue, Arial, sans-serif"
+      font-size="31" font-weight="850" letter-spacing="-2.4" fill="#FFFFFF">LSP</text>
+
+    <!-- Forward-motion underline -->
+    <path d="M25 74H69" fill="none" stroke="#FFFFFF" stroke-width="5.5" stroke-linecap="round"/>
+    <path d="M64 66L75 74L64 82" fill="none" stroke="#FFFFFF" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
   </g>
-  <text x="118" y="66" font-family="Inter, Avenir Next, Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="37" font-weight="760" letter-spacing="-1.2">
-    <tspan fill="#0F172A">Loan </tspan><tspan fill="url(#wordGradient)">Streamline</tspan><tspan fill="#0F172A"> Pro</tspan>
+
+  <!-- Wordmark -->
+  <text x="136" y="66"
+    font-family="Inter, Avenir Next, Segoe UI, Helvetica Neue, Arial, sans-serif"
+    font-size="42" font-weight="780" letter-spacing="-1.5">
+    <tspan fill="#0F172A">Loan </tspan><tspan fill="url(#streamGradient)">Streamline</tspan><tspan fill="#0F172A"> Pro</tspan>
+  </text>
+
+  <!-- Slogan -->
+  <text x="138" y="99"
+    font-family="Inter, Avenir Next, Segoe UI, Helvetica Neue, Arial, sans-serif"
+    font-size="16" font-weight="700" letter-spacing="3.1" fill="#64748B">
+    SMARTER CONNECTIONS · SIMPLER OPTIONS
   </text>
 </svg>
