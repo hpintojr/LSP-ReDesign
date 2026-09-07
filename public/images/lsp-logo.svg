@@ -28,15 +28,15 @@
     <path d="M64 66L75 74L64 82" fill="none" stroke="#FFFFFF" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
   </g>
 
-  <!-- Wordmark: intentionally larger for stronger visual hierarchy -->
-  <text x="132" y="72"
+  <!-- Wordmark -->
+  <text x="134" y="70"
     font-family="Inter, Avenir Next, Segoe UI, Helvetica Neue, Arial, sans-serif"
-    font-size="54" font-weight="800" letter-spacing="-1.8">
+    font-size="50" font-weight="800" letter-spacing="-1.5">
     <tspan fill="#0F172A">Loan </tspan><tspan fill="url(#streamGradient)">Streamline</tspan><tspan fill="#0F172A"> Pro</tspan>
   </text>
 
   <!-- Slogan -->
-  <text x="138" y="105"
+  <text x="138" y="103"
     font-family="Inter, Avenir Next, Segoe UI, Helvetica Neue, Arial, sans-serif"
     font-size="16" font-weight="700" letter-spacing="3.1" fill="#64748B">
     SMARTER CONNECTIONS · SIMPLER OPTIONS
