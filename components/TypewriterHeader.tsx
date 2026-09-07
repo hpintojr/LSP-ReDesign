@@ -30,15 +30,33 @@ export default function TypewriterHeader() {
   const [displayedText, setDisplayedText] = useState(WORDS[0].text);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isStarted, setIsStarted] = useState(false);
-  const prefersReducedMotion = useSyncExternalStore(subscribeReducedMotion, getReducedMotionSnapshot, getReducedMotionServerSnapshot);
+  const prefersReducedMotion = useSyncExternalStore(
+    subscribeReducedMotion,
+    getReducedMotionSnapshot,
+    getReducedMotionServerSnapshot
+  );
 
+  // Reduced-motion still rotates content, but without character-by-character typing.
+  useEffect(() => {
+    if (!prefersReducedMotion) return;
+
+    setDisplayedText(WORDS[currentWordIndex].text);
+    const timer = setTimeout(() => {
+      setCurrentWordIndex((index) => (index + 1) % WORDS.length);
+    }, 2800);
+
+    return () => clearTimeout(timer);
+  }, [prefersReducedMotion, currentWordIndex]);
+
+  // Standard typewriter behavior.
   useEffect(() => {
     if (prefersReducedMotion) return;
+
     if (!isStarted) {
       const initialDelay = setTimeout(() => {
         setIsDeleting(true);
         setIsStarted(true);
-      }, 2600);
+      }, 2200);
       return () => clearTimeout(initialDelay);
     }
 
@@ -47,18 +65,24 @@ export default function TypewriterHeader() {
 
     if (isDeleting) {
       if (displayedText.length > 0) {
-        timer = setTimeout(() => setDisplayedText(fullWord.substring(0, displayedText.length - 1)), 40);
+        timer = setTimeout(
+          () => setDisplayedText(fullWord.substring(0, displayedText.length - 1)),
+          35
+        );
       } else {
         timer = setTimeout(() => {
           const nextIndex = (currentWordIndex + 1) % WORDS.length;
           setCurrentWordIndex(nextIndex);
           setIsDeleting(false);
-        }, 100);
+        }, 80);
       }
     } else if (displayedText.length < fullWord.length) {
-      timer = setTimeout(() => setDisplayedText(fullWord.substring(0, displayedText.length + 1)), 70);
+      timer = setTimeout(
+        () => setDisplayedText(fullWord.substring(0, displayedText.length + 1)),
+        60
+      );
     } else {
-      timer = setTimeout(() => setIsDeleting(true), 2200);
+      timer = setTimeout(() => setIsDeleting(true), 1900);
     }
 
     return () => clearTimeout(timer);
@@ -69,7 +93,7 @@ export default function TypewriterHeader() {
   return (
     <div id="hero-headline-container">
       <h1
-        className="font-display text-[38px] sm:text-5xl lg:text-[62px] font-extrabold tracking-[-0.03em] text-af-navy leading-[1.08] min-h-[178px] sm:min-h-[120px] lg:min-h-[140px] overflow-visible"
+        className="font-display text-[38px] sm:text-5xl lg:text-[62px] font-extrabold tracking-[-0.03em] text-af-navy leading-[1.08] min-h-[104px] sm:min-h-[120px] lg:min-h-[140px] overflow-visible"
         id="typewriter-h1"
       >
         Streamline your path to
@@ -79,7 +103,7 @@ export default function TypewriterHeader() {
             className={`bg-gradient-to-r ${currentHighlight} bg-clip-text text-transparent transition-all duration-300 drop-shadow-sm`}
             id="typed-text-span"
           >
-            {prefersReducedMotion ? WORDS[0].text : displayedText}
+            {displayedText}
           </span>
           {!prefersReducedMotion && (
             <span
