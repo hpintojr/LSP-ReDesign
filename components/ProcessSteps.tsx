@@ -67,7 +67,7 @@ export default function ProcessSteps({ onApplyClick }: ProcessStepsProps) {
                   <span className="font-semibold">Stage {step.number} of 03</span>
                   {idx === 2 ? (
                     <Link href="/#estimator-anchor" onClick={() => analytics.processGetRateClick()} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-af-red hover:bg-af-red/90 text-white text-xs font-bold shadow-md hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5">
-                      Check My Options <ArrowRight className="w-3.5 h-3.5" />
+                      Apply Now <ArrowRight className="w-3.5 h-3.5" />
                     </Link>
                   ) : <span className="text-af-blue font-bold">LSP Connection Process</span>}
                 </div>
