@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import { ArrowLeft, CheckCircle2, Clock, ShieldCheck } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { getPostBySlug } from '@/data/blogPosts';
+import { BLOG_POSTS } from '@/data/blogPosts';
 
 interface ArticlePageProps {
   params: Promise<{ slug: string }>;
@@ -12,7 +12,7 @@ interface ArticlePageProps {
 
 export default async function ArticlePage({ params }: ArticlePageProps) {
   const { slug } = await params;
-  const post = getPostBySlug(slug);
+  const post = BLOG_POSTS.find((item) => item.slug === slug);
   if (!post) notFound();
 
   return (
