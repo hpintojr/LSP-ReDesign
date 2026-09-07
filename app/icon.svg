@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 104 104" role="img" aria-labelledby="title desc">
+  <title id="title">Loan Streamline Pro</title>
+  <desc id="desc">Loan Streamline Pro streamlined connection mark.</desc>
+  <defs>
+    <linearGradient id="lspGradient" x1="8" y1="8" x2="96" y2="96" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#38BDF8"/>
+      <stop offset="0.48" stop-color="#2563EB"/>
+      <stop offset="1" stop-color="#1E40AF"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="96" height="96" rx="24" fill="url(#lspGradient)"/>
+  <g fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M24 31H41C52 31 57 37 63 44L68 50" opacity="0.88"/>
+    <path d="M24 52H72"/>
+    <path d="M24 73H41C52 73 57 67 63 60L68 54" opacity="0.88"/>
+    <path d="M65 52H80"/>
+    <path d="M73 43L82 52L73 61"/>
+  </g>
+  <circle cx="24" cy="31" r="3.5" fill="#FFFFFF"/>
+  <circle cx="24" cy="52" r="3.5" fill="#FFFFFF"/>
+  <circle cx="24" cy="73" r="3.5" fill="#FFFFFF"/>
+</svg>
